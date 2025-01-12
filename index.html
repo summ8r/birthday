@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+            position: relative;
+            transition: background 1s ease;
+        }
+
+        .day-theme {
+            background: linear-gradient(to bottom, #ff9a9e, #fad0c4);
+            color: #000;
+        }
+
+        .night-theme {
+            background: linear-gradient(to bottom, #2B32B2, #000428);
+            color: #fff;
+        }
+
+        .content {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+        .content img {
+            max-width: 80%;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #fff;
+            position: relative;
+            z-index: 3;
+        }
+        .content h1 {
+            font-family: 'Pacifico', cursive;
+            font-size: 3.5em;
+            margin: 10px 0;
+            color: #ff6f61;
+        }
+        .content p {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+
+        .background-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5em;
+            color: rgba(255, 255, 255, 0.1);
+            text-align: center;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .falling-snow {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: fall linear infinite;
+            z-index: 2;
+        }
+
+        .butterfly {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Butterfly_icon.png/600px-Butterfly_icon.png') no-repeat center/contain;
+            animation: fly 5s linear infinite;
+        }
+
+        .moon, .sun {
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .moon {
+            background: radial-gradient(circle at 30% 30%, #fff, #e0e0e0 60%, #aaa 100%);
+            box-shadow: 0 0 20px #fff;
+        }
+
+        .sun {
+            background: radial-gradient(circle at center, #FFD700, #FFA500);
+            box-shadow: 0 0 30px #FFD700;
+        }
+
+        .star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+
+        .wishing-star {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: wish 4s ease-in-out;
+            box-shadow: 0 0 10px #fff;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) translateX(-100px);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(110vh) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fly {
+            0% {
+                transform: translateY(0) translateX(0);
+            }
+            50% {
+                transform: translateY(-50px) translateX(100px);
+            }
+            100% {
+                transform: translateY(0) translateX(200px);
+            }
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes wish {
+            0% {
+                transform: translate(-50px, -50px) scale(1);
+                opacity: 1;
+            }
+            90% {
+                transform: translate(100vw, 100vh) scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(100vw, 100vh) scale(2);
+                opacity: 0;
+            }
+        }
+
+        .toggle-button {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 60px;
+            height: 60px;
+            background-size: cover;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 3;
+        }
+
+        .toggle-button.day {
+            background-image: url('https://cdn-icons-png.flaticon.com/512/169/169367.png'); /* Sun icon */
+        }
+
+        .toggle-button.night {
+            background-image: url('https://cdn-icons-png.flaticon.com/512/741/741407.png'); /* Moon icon */
+        }
+
+    </style>
+</head>
+<body class="day-theme">
+    <button class="toggle-button day"></button>
+    <div class="background-text">Love & Joy ❤️ Happy Birthday</div>
+    <div class="content">
+        <canvas id="confetti-canvas" class="confetti"></canvas>
+        <h1>Happy Birthday, [Her Name]!</h1>
+        <p>You make every moment special ❤️</p>
+        <img src="YOUR_IMAGE_URL" alt="Happy Birthday Image">
+        <audio id="birthday-audio" autoplay loop>
+            <source src="YOUR_AUDIO_URL" type="audio/mp3">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+    <div class="moon" style="display: none;"></div>
+    <div class="sun" style="display: block;"></div>
+
+    <script>
+        const body = document.body;
+        const toggleButton = document.querySelector('.toggle-button');
+        const moon = document.querySelector('.moon');
+        const sun = document.querySelector('.sun');
+        const snowCount = 100;
+        const butterflyCount = 15;
+        const starCount = 150;
+        const wishInterval = 8000;
+
+        let isNight = false;
+
+        toggleButton.addEventListener('click', () => {
+            isNight = !isNight;
+            if (isNight) {
+                body.classList.replace('day-theme', 'night-theme');
+                moon.style.display = 'block';
+                sun.style.display = 'none';
+                toggleButton.classList.replace('day', 'night');
+                document.querySelectorAll('.falling-snow').forEach(snow => snow.style.display = 'block');
+                document.querySelectorAll('.butterfly').forEach(butterfly => butterfly.style.display = 'none');
+            } else {
+                body.classList.replace('night-theme', 'day-theme');
+                moon.style.display = 'none';
+                sun.style.display = 'block';
+                toggleButton.classList.replace('night', 'day');
+                document.querySelectorAll('.falling-snow').forEach(snow => snow.style.display = 'none');
+                document.querySelectorAll('.butterfly').forEach(butterfly => butterfly.style.display = 'block');
+            }
+        });
+
+        // Create falling snow
+        for (let i = 0; i < snowCount; i++) {
+            const snow = document.createElement('div');
+            snow.classList.add('falling-snow');
+            snow.style.left = Math.random() * 100 + 'vw';
+            snow.style.animationDuration = Math.random() * 3 + 2 + 's';
+            snow.style.animationDelay = Math.random() * 5 + 's';
+            snow.style.width = snow.style.height = Math.random() * 10 + 5 + 'px';
+            snow.style.display = 'none'; // Initially hidden
+            body.appendChild(snow);
+        }
+
+        // Create butterflies for day theme
+        for (let i = 0; i < butterflyCount; i++) {
+            const butterfly = document.createElement('div');
+            butterfly.classList.add('butterfly');
+            butterfly.style.top = Math.random() * 100 + 'vh';
+            butterfly.style.left = Math.random() * 100 + 'vw';
+            butterfly.style.animationDuration = Math.random() * 5 + 3 + 's';
+            butterfly.style.animationDelay = Math.random() * 2 + 's';
+            butterfly.style.display = 'block'; // Initially visible
+            body.appendChild(butterfly);
+        }
+
+        // Create stars for night theme
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.top = Math.random() * 100 + 'vh';
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.width = star.style.height = Math.random() * 3 + 2 + 'px';
+            star.style.animationDelay = Math.random() * 2 + 's';
+            body.appendChild(star);
+        }
+
+        // Create wishing stars
+        setInterval(() => {
+            const wishStar = document.createElement('div');
+            wishStar.classList.add('wishing-star');
+            wishStar.style.top = Math.random() * 50 + 'vh';
+            wishStar.style.left = '-10%';
+            body.appendChild(wishStar);
+            setTimeout(() => wishStar.remove(), 4000);
+        }, wishInterval);
+
+        // Ensure the audio plays on user interaction
+        const audio = document.getElementById('birthday-audio');
+        document.body.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+            }
+        });
+    </script>
+</body>
+</html>
